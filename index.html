@@ -7,25 +7,9 @@
     <meta name="theme-color" content="#2563eb">
     <title>Catatan Keuangan</title>
 
-    <!-- FAVICON SVG IKON DOLLAR ($) -->
+    <!-- LINK MANIFEST DAN FAVICON SVG -->
+    <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%232563eb'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='320' font-weight='bold' fill='white'>$</text></svg>">
-
-    <!-- MANIFEST PWA LANGSUNG DALAM SINGLE FILE -->
-    <link rel="manifest" href="data:application/manifest+json,{
-        &quot;short_name&quot;: &quot;CatatUang&quot;,
-        &quot;name&quot;: &quot;Catatan Keuangan Mobile&quot;,
-        &quot;start_url&quot;: &quot;/&quot;,
-        &quot;background_color&quot;: &quot;#111827&quot;,
-        &quot;theme_color&quot;: &quot;#2563eb&quot;,
-        &quot;display&quot;: &quot;standalone&quot;,
-        &quot;orientation&quot;: &quot;portrait&quot;,
-        &quot;icons&quot;: [{
-            &quot;src&quot;: &quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%232563eb'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='320' font-weight='bold' fill='white'>$</text></svg>&quot;,
-            &quot;sizes&quot;: &quot;512x512&quot;,
-            &quot;type&quot;: &quot;image/svg+xml&quot;,
-            &quot;purpose&quot;: &quot;any maskable&quot;
-        }]
-    }">
 
     <style>
         :root {
@@ -42,7 +26,6 @@
             --warning: #f59e0b;
         }
 
-        /* Deteksi Otomatis Sistem ATAU melalui Class 'dark' dari Android */
         @media (prefers-color-scheme: dark), html.dark {
             :root {
                 --bg-main: #111827;
@@ -374,7 +357,6 @@
 </head>
 <body>
 
-    <!-- Lock Screen Pin Overlay -->
     <div id="lockScreen" class="hidden">
         <div style="text-align: center; margin-bottom: 24px;">
             <div class="icon-box" style="width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 16px auto; font-size: 32px;">
@@ -409,7 +391,6 @@
         </div>
     </div>
 
-    <!-- App Container -->
     <div id="app">
         <header>
             <div class="header-title">
@@ -453,7 +434,6 @@
         </nav>
     </div>
 
-    <!-- Alert Modal -->
     <div id="alertModal" class="modal-backdrop">
         <div class="modal-content" style="border-radius: 20px; text-align: center; padding-bottom: 24px;">
             <h3 id="alertTitle" style="font-size: 16px; margin-bottom: 8px;">Pemberitahuan</h3>
@@ -465,7 +445,6 @@
         </div>
     </div>
 
-    <!-- Transaction Form Modal -->
     <div id="transactionModal" class="modal-backdrop">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -518,7 +497,6 @@
         </div>
     </div>
 
-    <!-- Modal Tambah Kategori Manual -->
     <div id="addCategoryModal" class="modal-backdrop">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -544,7 +522,6 @@
         </div>
     </div>
 
-    <!-- Backup Modal -->
     <div id="backupModal" class="modal-backdrop">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -581,7 +558,6 @@
         const STORAGE_KEY = 'CATATAN_KEUANGAN_DATA_V2';
         const SCHEMA_VERSION = 1;
 
-        // Kategori Default Bawaan Ditambahkan agar Tidak Kosong
         const DEFAULT_DATA = {
             version: SCHEMA_VERSION,
             settings: {
@@ -1158,7 +1134,6 @@
                     `;
                 });
 
-                // Sinkronisasi Warna Tengah Grafik Donat dengan Mode Gelap / Kelas 'dark'
                 const isDarkMode = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || 
                                    document.documentElement.classList.contains('dark');
                 ctx.beginPath();
@@ -1291,21 +1266,12 @@
             }
         };
 
-        // REGISTRASI SERVICE WORKER UNTUK FITUR INSTALASI PWA
+        // REGISTRASI SERVICE WORKER FISIK UNTUK PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                const swCode = `
-                    self.addEventListener('install', (e) => self.skipWaiting());
-                    self.addEventListener('activate', (e) => self.clients.claim());
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            fetch(e.request).catch(() => caches.match(e.request))
-                        );
-                    });
-                `;
-                const blob = new Blob([swCode], { type: 'text/javascript' });
-                const blobUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(blobUrl).catch((err) => console.log('SW Error:', err));
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker terdaftar:', reg))
+                    .catch(err => console.log('Gagal mendaftarkan Service Worker:', err));
             });
         }
     </script>
