@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
-<head>
+<html lang="id" class="h-full"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- Tambahkan tag meta ini untuk memberi sinyal skema warna ke browser/WebView -->
+    <meta name="color-scheme" content="light dark">
     <title>Catatan Keuangan</title>
     <style>
-        /* Modern Native CSS Styling - 100% Offline & Mobile First */
         :root {
             --bg-main: #f3f4f6;
             --bg-card: #ffffff;
@@ -20,8 +20,8 @@
             --warning: #f59e0b;
         }
 
-        /* Deteksi Otomatis Tema Gelap Mengikuti Sistem HP */
-        @media (prefers-color-scheme: dark) {
+        /* Deteksi Otomatis Sistem ATAU melalui Class 'dark' dari Android */
+        @media (prefers-color-scheme: dark), html.dark {
             :root {
                 --bg-main: #111827;
                 --bg-card: #1f2937;
@@ -567,7 +567,7 @@
         const STORAGE_KEY = 'CATATAN_KEUANGAN_DATA_V2';
         const SCHEMA_VERSION = 1;
 
-        // Bawaan kosong total termasuk saldo dan kategori
+        // Semua data bawaan dikosongkan total termasuk saldo
         const DEFAULT_DATA = {
             version: SCHEMA_VERSION,
             settings: {
@@ -740,7 +740,6 @@
                     color: randomColor
                 };
 
-                if (!db.categories) db.categories = [];
                 db.categories.push(newCat);
                 Storage.save(db);
 
@@ -876,8 +875,7 @@
             populateCategorySelect() {
                 const select = document.getElementById('txCategory');
                 select.innerHTML = '';
-                const categories = db.categories || [];
-                const filtered = categories.filter(c => c.type === activeTxType);
+                const filtered = db.categories.filter(c => c.type === activeTxType);
 
                 if (filtered.length === 0) {
                     const optEmpty = document.createElement('option');
@@ -1000,7 +998,7 @@
                     html += `<div style="padding: 24px; text-align: center; font-size: 12px; color: var(--text-muted);">Belum ada transaksi.</div>`;
                 } else {
                     recent.forEach(t => {
-                        const cat = (db.categories || []).find(c => c.id === t.categoryId) || { name: 'Transfer / Lainnya', color: '#3b82f6' };
+                        const cat = db.categories.find(c => c.id === t.categoryId) || { name: 'Transfer / Lainnya', color: '#3b82f6' };
                         const isExp = t.type === 'expense';
                         const isInc = t.type === 'income';
                         const sign = isExp ? '-' : (isInc ? '+' : '');
@@ -1041,7 +1039,7 @@
                     html += `<div style="padding: 24px; text-align: center; font-size: 12px; color: var(--text-muted);">Tidak ada transaksi.</div>`;
                 } else {
                     db.transactions.forEach(t => {
-                        const cat = (db.categories || []).find(c => c.id === t.categoryId) || { name: 'Transfer / Lainnya', color: '#3b82f6' };
+                        const cat = db.categories.find(c => c.id === t.categoryId) || { name: 'Transfer / Lainnya', color: '#3b82f6' };
                         const wallet = db.wallets.find(w => w.id === t.walletId) || { name: 'Dompet' };
                         const isExp = t.type === 'expense';
                         const isInc = t.type === 'income';
@@ -1119,7 +1117,7 @@
                 Object.keys(totals).forEach(catId => {
                     const amount = totals[catId];
                     const sliceAngle = (amount / totalExpense) * 2 * Math.PI;
-                    const cat = (db.categories || []).find(c => c.id === catId) || { name: 'Lainnya', color: '#6b7280' };
+                    const cat = db.categories.find(c => c.id === catId) || { name: 'Lainnya', color: '#6b7280' };
 
                     ctx.beginPath();
                     ctx.moveTo(cx, cy);
@@ -1211,14 +1209,7 @@
                 try {
                     const parsed = JSON.parse(input);
                     let rawTxs = [];
-                    let importedCategories = [];
 
-                    // 1. Ekstrak Kategori jika tersedia di JSON
-                    if (parsed.categories && Array.isArray(parsed.categories)) {
-                        importedCategories = parsed.categories;
-                    }
-
-                    // 2. Ekstrak Transaksi & Kategori Tersembunyi (Skema Lama)
                     if (parsed.panels) {
                         Object.keys(parsed.panels).forEach(panelKey => {
                             const panel = parsed.panels[panelKey];
@@ -1227,24 +1218,12 @@
                                     const namePart = t.name ? t.name.trim() : '';
                                     const descPart = (t.desc || t.notes || '').trim();
                                     const combinedNote = [namePart, descPart].filter(Boolean).join(' - ');
-                                    const catRaw = t.cat ? t.cat.trim() : 'lainnya';
-                                    const catId = 'cat_' + catRaw.replace(/\s+/g, '_');
-
-                                    // Tambah kategori jika belum terdaftar
-                                    if (!importedCategories.some(c => c.id === catId)) {
-                                        importedCategories.push({
-                                            id: catId,
-                                            name: catRaw,
-                                            type: t.type || 'expense',
-                                            color: '#3b82f6'
-                                        });
-                                    }
 
                                     rawTxs.push({
                                         id: 'tx_' + String(t.id).replace('.', ''),
                                         type: t.type || 'expense',
                                         amount: Number(t.amount) || 0,
-                                        categoryId: catId,
+                                        categoryId: 'cat_' + (t.cat || 'lainnya').replace(/\s+/g, '_'),
                                         walletId: panelKey === 'p_munq9qg2_xiab' ? 'w_tunai' : 'w_dikee',
                                         date: t.date || new Date().toISOString().split('T')[0],
                                         note: combinedNote,
@@ -1265,20 +1244,6 @@
                         });
                     }
 
-                    // Ekstrak Dompet jika tersedia
-                    if (parsed.wallets && Array.isArray(parsed.wallets)) {
-                        db.wallets = parsed.wallets;
-                    }
-
-                    // 3. Penggabungan Data Kategori tanpa duplikasi
-                    if (!db.categories) db.categories = [];
-                    importedCategories.forEach(cat => {
-                        if (!db.categories.some(c => c.id === cat.id)) {
-                            db.categories.push(cat);
-                        }
-                    });
-
-                    // 4. Mode Penggabungan/Restore Transaksi
                     if (mode === 'overwrite') {
                         db.transactions = rawTxs;
                     } else {
@@ -1288,7 +1253,7 @@
                     Storage.save(db);
                     UI.closeModal('backupModal');
                     UI.renderCurrentView();
-                    UI.showAlert('Berhasil', `${rawTxs.length} transaksi & kategori berhasil disesuaikan!`);
+                    UI.showAlert('Berhasil', `${rawTxs.length} transaksi berhasil dipulihkan!`);
                 } catch (e) {
                     console.error(e);
                     UI.showAlert('Gagal Impor', 'Format JSON tidak valid atau rusak.');
