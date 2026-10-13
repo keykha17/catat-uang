@@ -1,10 +1,32 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full"><head>
+<html lang="id" class="h-full">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <!-- Tambahkan tag meta ini untuk memberi sinyal skema warna ke browser/WebView -->
     <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#2563eb">
     <title>Catatan Keuangan</title>
+
+    <!-- FAVICON SVG IKON DOLLAR ($) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%232563eb'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='320' font-weight='bold' fill='white'>$</text></svg>">
+
+    <!-- MANIFEST PWA LANGSUNG DALAM SINGLE FILE -->
+    <link rel="manifest" href="data:application/manifest+json,{
+        &quot;short_name&quot;: &quot;CatatUang&quot;,
+        &quot;name&quot;: &quot;Catatan Keuangan Mobile&quot;,
+        &quot;start_url&quot;: &quot;/&quot;,
+        &quot;background_color&quot;: &quot;#111827&quot;,
+        &quot;theme_color&quot;: &quot;#2563eb&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;orientation&quot;: &quot;portrait&quot;,
+        &quot;icons&quot;: [{
+            &quot;src&quot;: &quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='128' fill='%232563eb'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='320' font-weight='bold' fill='white'>$</text></svg>&quot;,
+            &quot;sizes&quot;: &quot;512x512&quot;,
+            &quot;type&quot;: &quot;image/svg+xml&quot;,
+            &quot;purpose&quot;: &quot;any maskable&quot;
+        }]
+    }">
+
     <style>
         :root {
             --bg-main: #f3f4f6;
@@ -90,6 +112,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
         }
 
         main {
@@ -101,7 +125,6 @@
 
         main::-webkit-scrollbar { display: none; }
 
-        /* Card Styles */
         .card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -169,7 +192,6 @@
             font-weight: 700;
         }
 
-        /* Modal Backdrop & Animation */
         .modal-backdrop {
             position: fixed;
             inset: 0;
@@ -205,7 +227,6 @@
             transform: translateY(0);
         }
 
-        /* Forms & Inputs */
         .form-group {
             margin-bottom: 14px;
         }
@@ -283,7 +304,6 @@
             cursor: pointer;
         }
 
-        /* List Rows */
         .tx-row {
             display: flex;
             align-items: center;
@@ -315,7 +335,6 @@
         .text-income { color: var(--success); font-weight: 700; }
         .text-transfer { color: var(--primary); font-weight: 700; }
 
-        /* Lock Screen */
         #lockScreen {
             position: fixed;
             inset: 0;
@@ -358,8 +377,8 @@
     <!-- Lock Screen Pin Overlay -->
     <div id="lockScreen" class="hidden">
         <div style="text-align: center; margin-bottom: 24px;">
-            <div class="icon-box" style="width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 16px auto;">
-                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <div class="icon-box" style="width: 64px; height: 64px; border-radius: 20px; margin: 0 auto 16px auto; font-size: 32px;">
+                $
             </div>
             <h2 style="color: white; font-size: 20px;">Catatan Keuangan</h2>
             <p style="color: #9ca3af; font-size: 13px; margin-top: 4px;" id="pinMessage">Masukkan PIN Keamanan</p>
@@ -394,9 +413,7 @@
     <div id="app">
         <header>
             <div class="header-title">
-                <div class="icon-box">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </div>
+                <div class="icon-box">$</div>
                 <span id="headerTitle">Beranda</span>
             </div>
             <div style="display: flex; gap: 8px;">
@@ -406,9 +423,7 @@
             </div>
         </header>
 
-        <main id="mainContainer">
-            <!-- Render Dynamic View -->
-        </main>
+        <main id="mainContainer"></main>
 
         <button onclick="UI.openTransactionModal()" class="btn-fab">
             <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -438,7 +453,7 @@
         </nav>
     </div>
 
-    <!-- Alert / Confirm Custom Modal -->
+    <!-- Alert Modal -->
     <div id="alertModal" class="modal-backdrop">
         <div class="modal-content" style="border-radius: 20px; text-align: center; padding-bottom: 24px;">
             <h3 id="alertTitle" style="font-size: 16px; margin-bottom: 8px;">Pemberitahuan</h3>
@@ -462,7 +477,6 @@
             
             <form id="txForm" onsubmit="App.saveTransaction(event)">
                 <input type="hidden" id="txId">
-                
                 <div class="btn-group">
                     <button type="button" onclick="UI.setTxType('expense')" id="btnTypeExpense" class="btn-tab active-expense">Pengeluaran</button>
                     <button type="button" onclick="UI.setTxType('income')" id="btnTypeIncome" class="btn-tab">Pemasukan</button>
@@ -567,7 +581,7 @@
         const STORAGE_KEY = 'CATATAN_KEUANGAN_DATA_V2';
         const SCHEMA_VERSION = 1;
 
-        // Semua data bawaan dikosongkan total termasuk saldo
+        // Kategori Default Bawaan Ditambahkan agar Tidak Kosong
         const DEFAULT_DATA = {
             version: SCHEMA_VERSION,
             settings: {
@@ -579,7 +593,11 @@
                 { id: 'w_tunai', name: 'Kas Utama', type: 'Tunai', balance: 0, color: '#2563eb' },
                 { id: 'w_dikee', name: 'Uang Dikee', type: 'Tunai', balance: 0, color: '#10b981' }
             ],
-            categories: [],
+            categories: [
+                { id: 'cat_makanan', name: 'Makanan & Minuman', type: 'expense', color: '#ef4444' },
+                { id: 'cat_transport', name: 'Transportasi', type: 'expense', color: '#f59e0b' },
+                { id: 'cat_gaji', name: 'Gaji / Pemasukan', type: 'income', color: '#10b981' }
+            ],
             transactions: [],
             budgets: [],
             savings: [],
@@ -1140,7 +1158,9 @@
                     `;
                 });
 
-                const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                // Sinkronisasi Warna Tengah Grafik Donat dengan Mode Gelap / Kelas 'dark'
+                const isDarkMode = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) || 
+                                   document.documentElement.classList.contains('dark');
                 ctx.beginPath();
                 ctx.arc(cx, cy, 40, 0, 2 * Math.PI);
                 ctx.fillStyle = isDarkMode ? '#1f2937' : '#ffffff';
@@ -1270,6 +1290,24 @@
                 });
             }
         };
+
+        // REGISTRASI SERVICE WORKER UNTUK FITUR INSTALASI PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    self.addEventListener('install', (e) => self.skipWaiting());
+                    self.addEventListener('activate', (e) => self.clients.claim());
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            fetch(e.request).catch(() => caches.match(e.request))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'text/javascript' });
+                const blobUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(blobUrl).catch((err) => console.log('SW Error:', err));
+            });
+        }
     </script>
 </body>
 </html>
